@@ -28,20 +28,35 @@ steps:
 
     #                 Nome do Build da pipeline, Id do Build, Nome do Build
   - script: 'echo "$(Build.DefinitionName), $(Build.BuildId), $(Build.BuildNumber)" > buildinfo.txt'
-    displayName: 'Write build info'
+    displayName: "Write build info"
     workingDirectory: Tailspin.SpaceGame.Web/wwwroot
 
     # Restaura as dependencias e instala
   - task: DotNetCoreCLI@2
-    displayName: 'Restore project dependencies'
+    displayName: "Restore project dependencies"
     inputs:
-      command: 'restore'
-      projects: '**/*.csproj'
+      command: "restore"
+      projects: "**/*.csproj"
 
     # Criar o projeto
   - task: DotNetCoreCLI@2
-    displayName: 'Build the project - Release'
+    displayName: "Build the project - Release"
     inputs:
-      command: 'build'
-      arguments: '--no-restore --configuration Release'
-      projects: '**/*.csproj'
+      command: "build"
+      arguments: "--no-restore --configuration Release"
+      projects: "**/*.csproj"
+
+    # Publica ou empacota os resultados de build do app
+  - task: DotNetCoreCLI@2
+    displayName: "Publish the project - Release"
+    inputs:
+      command: "publish"
+      projects: "**/*.csproj"
+      publishWebProjects: false
+      arguments: "--no-build --configuration Release --output $(Build.ArtifactStatingDirectory)/Release"
+      zipAfterPublish: true
+
+    # Publica o .zip da etapa anterior
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish Artifact: drop"
+    condition: succeeded() # Default
