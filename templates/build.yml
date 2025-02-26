@@ -1,0 +1,21 @@
+# Isso eh um arquivo de modelo, por isso ao inves do variables eh usado o parameters
+parameters:
+  buildConfiguration: "Release"
+
+steps:
+  - task: DotNetCoreCLI@2
+    # ao inves de $() eh usado ${{}}
+    displayName: "Build the project - ${{ parameters.buildConfiguration }}"
+    inputs:
+      command: "build"
+      arguments: "--no-restore --configuration ${{ parameters.buildConfiguration }}"
+      projects: "**/*.csproj"
+
+  - task: DotNetCoreCLI@2
+    displayName: "Publish the project - ${{ parameters.buildConfiguration }}"
+    inputs:
+      command: "publish"
+      projects: "**/*.csproj"
+      publishWebProjects: false
+      arguments: "--no-build --configuration ${{ parameters.buildConfiguration }} --output ${{ parameters.buildConfiguration }}"
+      zipAfterPublish: true
