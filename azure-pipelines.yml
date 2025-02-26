@@ -5,16 +5,14 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  buildConfiguration: "Release" # Config da Build
-  wwwrootDir: "Tailspin.SpaceGame.Web/wwwroot" # caminho de diretorio do wwwroot
-  dotnetSdkVersion: "6.x" # versao do SDK do .NET
+  buildConfiguration: "Release"
+  wwwrootDir: "Tailspin.SpaceGame.Web/wwwroot"
+  dotnetSdkVersion: "6.x"
 
-# Comandos de script
 steps:
   - task: UseDotNet@2
     displayName: "Use .NET SDK $(dotnetSdkVersion)"
     inputs:
-      packageType: sdk
       version: "$(dotnetSdkVersion)"
 
   - task: Npm@1
@@ -28,35 +26,15 @@ steps:
   - task: gulp@1
     displayName: "Run gulp tasks"
 
-    #                 Nome do Build da pipeline, Id do Build, Nome do Build
   - script: 'echo "$(Build.DefinitionName), $(Build.BuildId), $(Build.BuildNumber)" > buildinfo.txt'
     displayName: "Write build info"
     workingDirectory: $(wwwrootDir)
 
-    # Restaura as dependencias e instala
   - task: DotNetCoreCLI@2
     displayName: "Restore project dependencies"
     inputs:
       command: "restore"
       projects: "**/*.csproj"
-
-  # Criar o projeto
-  # - task: DotNetCoreCLI@2
-  #   displayName: "Build the project - $(buildConfiguration)"
-  #   inputs:
-  #     command: "build"
-  #     arguments: "--no-restore --configuration $(buildConfiguration)"
-  #     projects: "**/*.csproj"
-
-  #   # Publica ou empacota os resultados de build do app
-  # - task: DotNetCoreCLI@2
-  #   displayName: "Publish the project - $(buildConfiguration)"
-  #   inputs:
-  #     command: "publish"
-  #     projects: "**/*.csproj"
-  #     publishWebProjects: false
-  #     arguments: "--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)"
-  #     zipAfterPublish: true
 
   - template: templates/build.yml
     parameters:
@@ -66,7 +44,6 @@ steps:
     parameters:
       buildConfiguration: "Release"
 
-    # Publica o .zip da etapa anterior
   - task: PublishBuildArtifacts@1
     displayName: "Publish Artifact: drop"
-    condition: succeeded() # Default
+    condition: succeeded()
